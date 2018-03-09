@@ -747,6 +747,7 @@ function sizeMe() {
 
           if (this.domEl) {
             (0, _resizeDetector2.default)(resizeDetectorStrategy).removeAllListeners(this.domEl);
+            (0, _resizeDetector2.default)(resizeDetectorStrategy).uninstall(this.domEl);
             this.domEl = null;
           }
         }
@@ -2509,7 +2510,7 @@ module.exports = function(options) {
             }
 
             // FireFox returns null style in hidden iframes. See https://github.com/wnr/element-resize-detector/issues/68 and https://bugzilla.mozilla.org/show_bug.cgi?id=795520
-            if (getComputedStyle(element) === null) {
+            if (window.getComputedStyle(element) === null) {
                 return true;
             }
 
@@ -2519,14 +2520,14 @@ module.exports = function(options) {
         function isUnrendered(element) {
             // Check the absolute positioned container since the top level container is display: inline.
             var container = getState(element).container.childNodes[0];
-            var style = getComputedStyle(container);
+            var style = window.getComputedStyle(container);
             return !style.width || style.width.indexOf("px") === -1; //Can only compute pixel value when rendered.
         }
 
         function getStyle() {
             // Some browsers only force layouts when actually reading the style properties of the style object, so make sure that they are all read here,
             // so that the user of the function can be sure that it will perform the layout here, instead of later (important for batching).
-            var elementStyle            = getComputedStyle(element);
+            var elementStyle            = window.getComputedStyle(element);
             var style                   = {};
             style.position              = elementStyle.position;
             style.width                 = element.offsetWidth;
@@ -2886,7 +2887,7 @@ module.exports = function(options) {
                 var width = element.offsetWidth;
                 var height = element.offsetHeight;
 
-                if (width !== element.lastWidth || height !== element.lastHeight) {
+                if (width !== getState(element).lastWidth || height !== getState(element).lastHeight) {
                     debug("Element size changed.");
                     updateDetectorElements(notifyListenersIfNeeded);
                 } else {

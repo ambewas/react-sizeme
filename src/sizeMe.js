@@ -205,6 +205,7 @@ function sizeMe(config = defaultConfig) {
 
         if (this.domEl) {
           resizeDetector(resizeDetectorStrategy).removeAllListeners(this.domEl)
+          resizeDetector(resizeDetectorStrategy).uninstall(this.domEl)
           this.domEl = null
         }
       }

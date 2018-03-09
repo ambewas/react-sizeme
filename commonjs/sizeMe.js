@@ -313,6 +313,7 @@ function sizeMe() {
 
           if (this.domEl) {
             (0, _resizeDetector2.default)(resizeDetectorStrategy).removeAllListeners(this.domEl);
+            (0, _resizeDetector2.default)(resizeDetectorStrategy).uninstall(this.domEl);
             this.domEl = null;
           }
         }
