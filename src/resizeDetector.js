@@ -10,7 +10,6 @@ function resizeDetector(strategy = 'scroll') {
       strategy,
     })
   }
-  console.log('instance', instance)
   return instance
 }
 
