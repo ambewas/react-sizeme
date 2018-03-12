@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
+		module.exports = factory(require("react"));
 	else if(typeof define === 'function' && define.amd)
-		define([], factory);
+		define(["react"], factory);
 	else if(typeof exports === 'object')
-		exports["ReactSizeMe"] = factory();
+		exports["ReactSizeMe"] = factory(require("react"));
 	else
-		root["ReactSizeMe"] = factory();
-})(this, function() {
+		root["ReactSizeMe"] = factory(root["React"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_1__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -83,19 +83,22 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.sizeMe = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(1);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // import sizeMe from './sizeMe'
 
-// import sizeMe from './sizeMe'
+
 var sizeMe = function sizeMe() {
   return function (WrappedComponent) {
-    return function (_Component) {
+    var Enhancer = function (_Component) {
       _inherits(Enhancer, _Component);
 
       function Enhancer() {
@@ -105,7 +108,7 @@ var sizeMe = function sizeMe() {
       }
 
       _createClass(Enhancer, [{
-        key: "render",
+        key: 'render',
         // eslint-disable-line
         value: function render() {
           return React.createElement(WrappedComponent, this.props);
@@ -113,7 +116,9 @@ var sizeMe = function sizeMe() {
       }]);
 
       return Enhancer;
-    }(Component);
+    }(_react.Component);
+
+    return Enhancer;
   };
 };
 exports.sizeMe = sizeMe;
@@ -121,6 +126,12 @@ exports.sizeMe = sizeMe;
 // Backward compat
 
 exports.default = sizeMe;
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
 
 /***/ })
 /******/ ]);
