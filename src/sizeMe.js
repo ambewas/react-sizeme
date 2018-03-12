@@ -210,6 +210,7 @@ function sizeMe(config = defaultConfig) {
         this.hasSizeChanged = () => undefined
         this.checkIfSizeChanged = () => undefined
 
+        this.element = null
 
         if (this.domEl) {
           resizeDetector(resizeDetectorStrategy).removeAllListeners(this.domEl)
