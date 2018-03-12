@@ -184,6 +184,11 @@ function sizeMe(config = defaultConfig) {
         position: undefined,
       }
 
+      constructor() {
+        super()
+        this.checkIfSizeChanged = refreshDelayStrategy(this.checkIfSizeChanged, refreshRate)
+      }
+
       componentDidMount() {
         this.determineStrategy(this.props)
         this.handleDOMNode()
@@ -288,7 +293,7 @@ function sizeMe(config = defaultConfig) {
         )
       }
 
-      checkIfSizeChanged = refreshDelayStrategy(el => {
+      checkIfSizeChanged = el => {
         const {
           width,
           height,
@@ -307,7 +312,7 @@ function sizeMe(config = defaultConfig) {
         if (this.hasSizeChanged(this.strategisedGetState(), next)) {
           this.strategisedSetState(next)
         }
-      }, refreshRate)
+      }
 
       render() {
         const disablePlaceholder =

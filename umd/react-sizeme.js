@@ -655,21 +655,17 @@ function sizeMe() {
       _inherits(SizeAwareComponent, _React$Component);
 
       function SizeAwareComponent() {
-        var _ref2;
-
-        var _temp, _this2, _ret;
-
         _classCallCheck(this, SizeAwareComponent);
 
-        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
-        }
+        var _this2 = _possibleConstructorReturn(this, (SizeAwareComponent.__proto__ || Object.getPrototypeOf(SizeAwareComponent)).call(this));
 
-        return _ret = (_temp = (_this2 = _possibleConstructorReturn(this, (_ref2 = SizeAwareComponent.__proto__ || Object.getPrototypeOf(SizeAwareComponent)).call.apply(_ref2, [this].concat(args))), _this2), _this2.state = {
+        _this2.state = {
           width: undefined,
           height: undefined,
           position: undefined
-        }, _this2.determineStrategy = function (props) {
+        };
+
+        _this2.determineStrategy = function (props) {
           if (props.onSize) {
             if (!_this2.callbackState) {
               _this2.callbackState = _extends({}, _this2.state);
@@ -678,25 +674,35 @@ function sizeMe() {
           } else {
             _this2.strategy = 'render';
           }
-        }, _this2.strategisedSetState = function (state) {
+        };
+
+        _this2.strategisedSetState = function (state) {
           if (_this2.strategy === 'callback') {
             _this2.callbackState = state;
             _this2.props.onSize(state);
           } else {
             _this2.setState(state);
           }
-        }, _this2.strategisedGetState = function () {
+        };
+
+        _this2.strategisedGetState = function () {
           return _this2.strategy === 'callback' ? _this2.callbackState : _this2.state;
-        }, _this2.refCallback = function (element) {
+        };
+
+        _this2.refCallback = function (element) {
           _this2.element = element;
-        }, _this2.hasSizeChanged = function (current, next) {
+        };
+
+        _this2.hasSizeChanged = function (current, next) {
           var c = current;
           var n = next;
           var cp = c.position || {};
           var np = n.position || {};
 
           return monitorHeight && c.height !== n.height || monitorPosition && (cp.top !== np.top || cp.left !== np.left || cp.bottom !== np.bottom || cp.right !== np.right) || monitorWidth && c.width !== n.width;
-        }, _this2.checkIfSizeChanged = refreshDelayStrategy(function (el) {
+        };
+
+        _this2.checkIfSizeChanged = function (el) {
           var _el$getBoundingClient = el.getBoundingClientRect(),
               width = _el$getBoundingClient.width,
               height = _el$getBoundingClient.height,
@@ -714,7 +720,10 @@ function sizeMe() {
           if (_this2.hasSizeChanged(_this2.strategisedGetState(), next)) {
             _this2.strategisedSetState(next);
           }
-        }, refreshRate), _temp), _possibleConstructorReturn(_this2, _ret);
+        };
+
+        _this2.checkIfSizeChanged = refreshDelayStrategy(_this2.checkIfSizeChanged, refreshRate);
+        return _this2;
       }
 
       _createClass(SizeAwareComponent, [{
