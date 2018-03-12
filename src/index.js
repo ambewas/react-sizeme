@@ -4,7 +4,11 @@ import { Component } from 'react'
 const sizeMe = () => WrappedComponent => {
   class Enhancer extends Component { // eslint-disable-line
     render() {
-      return <WrappedComponent {...this.props} />
+      const props = {
+        ...this.props,
+        size: {},
+      }
+      return <WrappedComponent {...props} />
     }
   }
   return Enhancer
