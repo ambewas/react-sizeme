@@ -198,10 +198,13 @@ function sizeMe(config = defaultConfig) {
       }
 
       componentWillUnmount() {
+        this.checkIfSizeChanged.cancel()
+
         // Change our size checker to a noop just in case we have some
         // late running events.
         this.hasSizeChanged = () => undefined
         this.checkIfSizeChanged = () => undefined
+
 
         if (this.domEl) {
           resizeDetector(resizeDetectorStrategy).removeAllListeners(this.domEl)

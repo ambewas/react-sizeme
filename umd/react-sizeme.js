@@ -736,6 +736,8 @@ function sizeMe() {
       }, {
         key: 'componentWillUnmount',
         value: function componentWillUnmount() {
+          this.checkIfSizeChanged.cancel();
+
           // Change our size checker to a noop just in case we have some
           // late running events.
           this.hasSizeChanged = function () {
