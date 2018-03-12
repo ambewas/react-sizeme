@@ -1,18 +1,5 @@
-// import sizeMe from './sizeMe'
-import { Component } from 'react'
+import sizeMe from './sizeMe'
 
-const sizeMe = () => WrappedComponent => {
-  class Enhancer extends Component { // eslint-disable-line
-    render() {
-      const props = {
-        ...this.props,
-        size: {},
-      }
-      return <WrappedComponent {...props} />
-    }
-  }
-  return Enhancer
-}
 export { sizeMe }
 
 // Backward compat
