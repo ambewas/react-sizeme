@@ -22,7 +22,6 @@ function resizeDetector() {
       strategy: strategy
     });
   }
-
   return instance;
 }
 
