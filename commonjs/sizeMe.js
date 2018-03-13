@@ -32,9 +32,9 @@ var _debounce = require('lodash/debounce');
 
 var _debounce2 = _interopRequireDefault(_debounce);
 
-var _resizeDetector = require('./resizeDetector');
+var _elementResizeDetector = require('element-resize-detector');
 
-var _resizeDetector2 = _interopRequireDefault(_resizeDetector);
+var _elementResizeDetector2 = _interopRequireDefault(_elementResizeDetector);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -214,6 +214,8 @@ function sizeMe() {
 
   var refreshDelayStrategy = refreshMode === 'throttle' ? _throttle2.default : _debounce2.default;
 
+  var resizeDetector = (0, _elementResizeDetector2.default)({ strategy: resizeDetectorStrategy });
+
   return function WrapComponent(WrappedComponent) {
     var SizeMeRenderWrapper = renderWrapper(WrappedComponent);
 
@@ -325,8 +327,8 @@ function sizeMe() {
           this.element = null;
 
           if (this.domEl) {
-            (0, _resizeDetector2.default)(resizeDetectorStrategy).removeAllListeners(this.domEl);
-            (0, _resizeDetector2.default)(resizeDetectorStrategy).uninstall(this.domEl);
+            resizeDetector.removeAllListeners(this.domEl);
+            resizeDetector.uninstall(this.domEl);
             this.domEl = null;
           }
         }
@@ -341,18 +343,18 @@ function sizeMe() {
           if (!found) {
             // This is for special cases where the element may be null.
             if (this.domEl) {
-              (0, _resizeDetector2.default)(resizeDetectorStrategy).removeAllListeners(this.domEl);
+              resizeDetector.removeAllListeners(this.domEl);
               this.domEl = null;
             }
             return;
           }
 
           if (this.domEl) {
-            (0, _resizeDetector2.default)(resizeDetectorStrategy).removeAllListeners(this.domEl);
+            resizeDetector.removeAllListeners(this.domEl);
           }
 
           this.domEl = found;
-          (0, _resizeDetector2.default)(resizeDetectorStrategy).listenTo(this.domEl, this.checkIfSizeChanged);
+          resizeDetector.listenTo(this.domEl, this.checkIfSizeChanged);
         }
       }, {
         key: 'render',
