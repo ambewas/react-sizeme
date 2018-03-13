@@ -290,7 +290,7 @@ function sizeMe() {
           }
         };
 
-        _this2.checkIfSizeChanged = refreshDelayStrategy(_this2.checkIfSizeChanged, refreshRate);
+        _this2.delayedChange = refreshDelayStrategy(_this2.checkIfSizeChanged, refreshRate);
         return _this2;
       }
 
@@ -313,17 +313,8 @@ function sizeMe() {
       }, {
         key: 'componentWillUnmount',
         value: function componentWillUnmount() {
-          this.checkIfSizeChanged.cancel();
-
-          // Change our size checker to a noop just in case we have some
-          // late running events.
-          this.hasSizeChanged = function () {
-            return undefined;
-          };
-          this.checkIfSizeChanged = function () {
-            return undefined;
-          };
-
+          this.delayedChange.cancel();
+          this.delayedChange = null;
           this.element = null;
 
           if (this.domEl) {
@@ -354,7 +345,7 @@ function sizeMe() {
           }
 
           this.domEl = found;
-          resizeDetector.listenTo(this.domEl, this.checkIfSizeChanged);
+          resizeDetector.listenTo(this.domEl, this.delayedChange);
         }
       }, {
         key: 'render',

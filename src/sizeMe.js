@@ -188,7 +188,7 @@ function sizeMe(config = defaultConfig) {
 
       constructor() {
         super()
-        this.checkIfSizeChanged = refreshDelayStrategy(this.checkIfSizeChanged, refreshRate)
+        this.delayedChange = refreshDelayStrategy(this.checkIfSizeChanged, refreshRate)
       }
 
       componentDidMount() {
@@ -205,13 +205,8 @@ function sizeMe(config = defaultConfig) {
       }
 
       componentWillUnmount() {
-        this.checkIfSizeChanged.cancel()
-
-        // Change our size checker to a noop just in case we have some
-        // late running events.
-        this.hasSizeChanged = () => undefined
-        this.checkIfSizeChanged = () => undefined
-
+        this.delayedChange.cancel()
+        this.delayedChange = null
         this.element = null
 
         if (this.domEl) {
@@ -271,7 +266,7 @@ function sizeMe(config = defaultConfig) {
         this.domEl = found
         resizeDetector.listenTo(
           this.domEl,
-          this.checkIfSizeChanged,
+          this.delayedChange,
         )
       }
 
