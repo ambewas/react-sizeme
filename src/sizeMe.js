@@ -7,7 +7,7 @@ import ReactDOM from 'react-dom'
 import invariant from 'invariant'
 import throttle from 'lodash/throttle'
 import debounce from 'lodash/debounce'
-import resizeDetector from './resizeDetector'
+import createResizeDetector from 'element-resize-detector'
 
 const defaultConfig = {
   monitorWidth: true,
@@ -168,6 +168,8 @@ function sizeMe(config = defaultConfig) {
 
   const refreshDelayStrategy = refreshMode === 'throttle' ? throttle : debounce
 
+  const resizeDetector = createResizeDetector({ strategy: resizeDetectorStrategy })
+
   return function WrapComponent(WrappedComponent) {
     const SizeMeRenderWrapper = renderWrapper(WrappedComponent)
 
@@ -213,8 +215,8 @@ function sizeMe(config = defaultConfig) {
         this.element = null
 
         if (this.domEl) {
-          resizeDetector(resizeDetectorStrategy).removeAllListeners(this.domEl)
-          resizeDetector(resizeDetectorStrategy).uninstall(this.domEl)
+          resizeDetector.removeAllListeners(this.domEl)
+          resizeDetector.uninstall(this.domEl)
           this.domEl = null
         }
       }
@@ -254,7 +256,7 @@ function sizeMe(config = defaultConfig) {
         if (!found) {
           // This is for special cases where the element may be null.
           if (this.domEl) {
-            resizeDetector(resizeDetectorStrategy).removeAllListeners(
+            resizeDetector.removeAllListeners(
               this.domEl,
             )
             this.domEl = null
@@ -263,11 +265,11 @@ function sizeMe(config = defaultConfig) {
         }
 
         if (this.domEl) {
-          resizeDetector(resizeDetectorStrategy).removeAllListeners(this.domEl)
+          resizeDetector.removeAllListeners(this.domEl)
         }
 
         this.domEl = found
-        resizeDetector(resizeDetectorStrategy).listenTo(
+        resizeDetector.listenTo(
           this.domEl,
           this.checkIfSizeChanged,
         )
