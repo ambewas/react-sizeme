@@ -186,12 +186,8 @@ function sizeMe(config = defaultConfig) {
         position: undefined,
       }
 
-      constructor() {
-        super()
-        this.delayedChange = refreshDelayStrategy(this.checkIfSizeChanged, refreshRate)
-      }
-
       componentDidMount() {
+        this.delayedChange = refreshDelayStrategy(this.checkIfSizeChanged, refreshRate)
         this.determineStrategy(this.props)
         this.handleDOMNode()
       }
