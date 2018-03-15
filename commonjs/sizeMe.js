@@ -32,9 +32,9 @@ var _debounce = require('lodash/debounce');
 
 var _debounce2 = _interopRequireDefault(_debounce);
 
-var _resizeDetector = require('./resizeDetector');
+var _elementResizeDetector = require('element-resize-detector');
 
-var _resizeDetector2 = _interopRequireDefault(_resizeDetector);
+var _elementResizeDetector2 = _interopRequireDefault(_elementResizeDetector);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -221,17 +221,21 @@ function sizeMe() {
       _inherits(SizeAwareComponent, _React$Component);
 
       function SizeAwareComponent() {
+        var _ref2;
+
+        var _temp, _this2, _ret;
+
         _classCallCheck(this, SizeAwareComponent);
 
-        var _this2 = _possibleConstructorReturn(this, (SizeAwareComponent.__proto__ || Object.getPrototypeOf(SizeAwareComponent)).call(this));
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
 
-        _this2.state = {
+        return _ret = (_temp = (_this2 = _possibleConstructorReturn(this, (_ref2 = SizeAwareComponent.__proto__ || Object.getPrototypeOf(SizeAwareComponent)).call.apply(_ref2, [this].concat(args))), _this2), _this2.state = {
           width: undefined,
           height: undefined,
           position: undefined
-        };
-
-        _this2.determineStrategy = function (props) {
+        }, _this2.determineStrategy = function (props) {
           if (props.onSize) {
             if (!_this2.callbackState) {
               _this2.callbackState = _extends({}, _this2.state);
@@ -240,35 +244,25 @@ function sizeMe() {
           } else {
             _this2.strategy = 'render';
           }
-        };
-
-        _this2.strategisedSetState = function (state) {
+        }, _this2.strategisedSetState = function (state) {
           if (_this2.strategy === 'callback') {
             _this2.callbackState = state;
             _this2.props.onSize(state);
           } else {
             _this2.setState(state);
           }
-        };
-
-        _this2.strategisedGetState = function () {
+        }, _this2.strategisedGetState = function () {
           return _this2.strategy === 'callback' ? _this2.callbackState : _this2.state;
-        };
-
-        _this2.refCallback = function (element) {
+        }, _this2.refCallback = function (element) {
           _this2.element = element;
-        };
-
-        _this2.hasSizeChanged = function (current, next) {
+        }, _this2.hasSizeChanged = function (current, next) {
           var c = current;
           var n = next;
           var cp = c.position || {};
           var np = n.position || {};
 
           return monitorHeight && c.height !== n.height || monitorPosition && (cp.top !== np.top || cp.left !== np.left || cp.bottom !== np.bottom || cp.right !== np.right) || monitorWidth && c.width !== n.width;
-        };
-
-        _this2.checkIfSizeChanged = function (el) {
+        }, _this2.checkIfSizeChanged = function (el) {
           var _el$getBoundingClient = el.getBoundingClientRect(),
               width = _el$getBoundingClient.width,
               height = _el$getBoundingClient.height,
@@ -286,15 +280,14 @@ function sizeMe() {
           if (_this2.hasSizeChanged(_this2.strategisedGetState(), next)) {
             _this2.strategisedSetState(next);
           }
-        };
-
-        _this2.checkIfSizeChanged = refreshDelayStrategy(_this2.checkIfSizeChanged, refreshRate);
-        return _this2;
+        }, _temp), _possibleConstructorReturn(_this2, _ret);
       }
 
       _createClass(SizeAwareComponent, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
+          this.resizeDetector = (0, _elementResizeDetector2.default)({ strategy: resizeDetectorStrategy });
+          this.delayedChange = refreshDelayStrategy(this.checkIfSizeChanged, refreshRate);
           this.determineStrategy(this.props);
           this.handleDOMNode();
         }
@@ -311,23 +304,14 @@ function sizeMe() {
       }, {
         key: 'componentWillUnmount',
         value: function componentWillUnmount() {
-          this.checkIfSizeChanged.cancel();
-
-          // Change our size checker to a noop just in case we have some
-          // late running events.
-          this.hasSizeChanged = function () {
-            return undefined;
-          };
-          this.checkIfSizeChanged = function () {
-            return undefined;
-          };
-
+          this.delayedChange.cancel();
+          this.delayedChange = null;
           this.element = null;
 
           if (this.domEl) {
-            (0, _resizeDetector2.default)(resizeDetectorStrategy).removeAllListeners(this.domEl);
-            (0, _resizeDetector2.default)(resizeDetectorStrategy).uninstall(this.domEl);
+            this.resizeDetector.uninstall(this.domEl);
             this.domEl = null;
+            this.resizeDetector = null;
           }
         }
       }, {
@@ -341,18 +325,18 @@ function sizeMe() {
           if (!found) {
             // This is for special cases where the element may be null.
             if (this.domEl) {
-              (0, _resizeDetector2.default)(resizeDetectorStrategy).removeAllListeners(this.domEl);
+              this.resizeDetector.removeAllListeners(this.domEl);
               this.domEl = null;
             }
             return;
           }
 
           if (this.domEl) {
-            (0, _resizeDetector2.default)(resizeDetectorStrategy).removeAllListeners(this.domEl);
+            this.resizeDetector.removeAllListeners(this.domEl);
           }
 
           this.domEl = found;
-          (0, _resizeDetector2.default)(resizeDetectorStrategy).listenTo(this.domEl, this.checkIfSizeChanged);
+          this.resizeDetector.listenTo(this.domEl, this.delayedChange);
         }
       }, {
         key: 'render',

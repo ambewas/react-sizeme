@@ -466,9 +466,9 @@ var _debounce = __webpack_require__(1);
 
 var _debounce2 = _interopRequireDefault(_debounce);
 
-var _resizeDetector = __webpack_require__(22);
+var _elementResizeDetector = __webpack_require__(22);
 
-var _resizeDetector2 = _interopRequireDefault(_resizeDetector);
+var _elementResizeDetector2 = _interopRequireDefault(_elementResizeDetector);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -655,17 +655,21 @@ function sizeMe() {
       _inherits(SizeAwareComponent, _React$Component);
 
       function SizeAwareComponent() {
+        var _ref2;
+
+        var _temp, _this2, _ret;
+
         _classCallCheck(this, SizeAwareComponent);
 
-        var _this2 = _possibleConstructorReturn(this, (SizeAwareComponent.__proto__ || Object.getPrototypeOf(SizeAwareComponent)).call(this));
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
 
-        _this2.state = {
+        return _ret = (_temp = (_this2 = _possibleConstructorReturn(this, (_ref2 = SizeAwareComponent.__proto__ || Object.getPrototypeOf(SizeAwareComponent)).call.apply(_ref2, [this].concat(args))), _this2), _this2.state = {
           width: undefined,
           height: undefined,
           position: undefined
-        };
-
-        _this2.determineStrategy = function (props) {
+        }, _this2.determineStrategy = function (props) {
           if (props.onSize) {
             if (!_this2.callbackState) {
               _this2.callbackState = _extends({}, _this2.state);
@@ -674,35 +678,25 @@ function sizeMe() {
           } else {
             _this2.strategy = 'render';
           }
-        };
-
-        _this2.strategisedSetState = function (state) {
+        }, _this2.strategisedSetState = function (state) {
           if (_this2.strategy === 'callback') {
             _this2.callbackState = state;
             _this2.props.onSize(state);
           } else {
             _this2.setState(state);
           }
-        };
-
-        _this2.strategisedGetState = function () {
+        }, _this2.strategisedGetState = function () {
           return _this2.strategy === 'callback' ? _this2.callbackState : _this2.state;
-        };
-
-        _this2.refCallback = function (element) {
+        }, _this2.refCallback = function (element) {
           _this2.element = element;
-        };
-
-        _this2.hasSizeChanged = function (current, next) {
+        }, _this2.hasSizeChanged = function (current, next) {
           var c = current;
           var n = next;
           var cp = c.position || {};
           var np = n.position || {};
 
           return monitorHeight && c.height !== n.height || monitorPosition && (cp.top !== np.top || cp.left !== np.left || cp.bottom !== np.bottom || cp.right !== np.right) || monitorWidth && c.width !== n.width;
-        };
-
-        _this2.checkIfSizeChanged = function (el) {
+        }, _this2.checkIfSizeChanged = function (el) {
           var _el$getBoundingClient = el.getBoundingClientRect(),
               width = _el$getBoundingClient.width,
               height = _el$getBoundingClient.height,
@@ -720,15 +714,14 @@ function sizeMe() {
           if (_this2.hasSizeChanged(_this2.strategisedGetState(), next)) {
             _this2.strategisedSetState(next);
           }
-        };
-
-        _this2.checkIfSizeChanged = refreshDelayStrategy(_this2.checkIfSizeChanged, refreshRate);
-        return _this2;
+        }, _temp), _possibleConstructorReturn(_this2, _ret);
       }
 
       _createClass(SizeAwareComponent, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
+          this.resizeDetector = (0, _elementResizeDetector2.default)({ strategy: resizeDetectorStrategy });
+          this.delayedChange = refreshDelayStrategy(this.checkIfSizeChanged, refreshRate);
           this.determineStrategy(this.props);
           this.handleDOMNode();
         }
@@ -745,23 +738,14 @@ function sizeMe() {
       }, {
         key: 'componentWillUnmount',
         value: function componentWillUnmount() {
-          this.checkIfSizeChanged.cancel();
-
-          // Change our size checker to a noop just in case we have some
-          // late running events.
-          this.hasSizeChanged = function () {
-            return undefined;
-          };
-          this.checkIfSizeChanged = function () {
-            return undefined;
-          };
-
+          this.delayedChange.cancel();
+          this.delayedChange = null;
           this.element = null;
 
           if (this.domEl) {
-            (0, _resizeDetector2.default)(resizeDetectorStrategy).removeAllListeners(this.domEl);
-            (0, _resizeDetector2.default)(resizeDetectorStrategy).uninstall(this.domEl);
+            this.resizeDetector.uninstall(this.domEl);
             this.domEl = null;
+            this.resizeDetector = null;
           }
         }
       }, {
@@ -775,18 +759,18 @@ function sizeMe() {
           if (!found) {
             // This is for special cases where the element may be null.
             if (this.domEl) {
-              (0, _resizeDetector2.default)(resizeDetectorStrategy).removeAllListeners(this.domEl);
+              this.resizeDetector.removeAllListeners(this.domEl);
               this.domEl = null;
             }
             return;
           }
 
           if (this.domEl) {
-            (0, _resizeDetector2.default)(resizeDetectorStrategy).removeAllListeners(this.domEl);
+            this.resizeDetector.removeAllListeners(this.domEl);
           }
 
           this.domEl = found;
-          (0, _resizeDetector2.default)(resizeDetectorStrategy).listenTo(this.domEl, this.checkIfSizeChanged);
+          this.resizeDetector.listenTo(this.domEl, this.delayedChange);
         }
       }, {
         key: 'render',
@@ -1319,53 +1303,19 @@ module.exports = isObjectLike;
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _elementResizeDetector = __webpack_require__(23);
-
-var _elementResizeDetector2 = _interopRequireDefault(_elementResizeDetector);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var instance = void 0;
-
-// Lazily require to not cause bug
-// https://github.com/ctrlplusb/react-sizeme/issues/6
-function resizeDetector() {
-  var strategy = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'scroll';
-
-  if (!instance) {
-    instance = (0, _elementResizeDetector2.default)({
-      strategy: strategy
-    });
-  }
-  return instance;
-}
-
-exports.default = resizeDetector;
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
 var forEach                 = __webpack_require__(4).forEach;
-var elementUtilsMaker       = __webpack_require__(24);
-var listenerHandlerMaker    = __webpack_require__(25);
-var idGeneratorMaker        = __webpack_require__(26);
-var idHandlerMaker          = __webpack_require__(27);
-var reporterMaker           = __webpack_require__(28);
+var elementUtilsMaker       = __webpack_require__(23);
+var listenerHandlerMaker    = __webpack_require__(24);
+var idGeneratorMaker        = __webpack_require__(25);
+var idHandlerMaker          = __webpack_require__(26);
+var reporterMaker           = __webpack_require__(27);
 var browserDetector         = __webpack_require__(5);
-var batchProcessorMaker     = __webpack_require__(29);
-var stateHandler            = __webpack_require__(31);
+var batchProcessorMaker     = __webpack_require__(28);
+var stateHandler            = __webpack_require__(30);
 
 //Detection strategies.
-var objectStrategyMaker     = __webpack_require__(32);
-var scrollStrategyMaker     = __webpack_require__(33);
+var objectStrategyMaker     = __webpack_require__(31);
+var scrollStrategyMaker     = __webpack_require__(32);
 
 function isCollection(obj) {
     return Array.isArray(obj) || obj.length !== undefined;
@@ -1675,7 +1625,7 @@ function getOption(options, name, defaultValue) {
 
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1734,7 +1684,7 @@ module.exports = function(options) {
 
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1788,7 +1738,9 @@ module.exports = function(idHandler) {
     function removeAllListeners(element) {
       var listeners = getListeners(element);
       if (!listeners) { return; }
-      listeners.length = 0;
+      var id = idHandler.get(element);
+      delete eventListeners[id];
+
     }
 
     return {
@@ -1801,7 +1753,7 @@ module.exports = function(idHandler) {
 
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1826,7 +1778,7 @@ module.exports = function() {
 
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1880,7 +1832,7 @@ module.exports = function(options) {
 
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1929,13 +1881,13 @@ module.exports = function(quiet) {
 };
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var utils = __webpack_require__(30);
+var utils = __webpack_require__(29);
 
 module.exports = function batchProcessorMaker(options) {
     options             = options || {};
@@ -2074,7 +2026,7 @@ function Batch() {
 
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2096,7 +2048,7 @@ function getOption(options, name, defaultValue) {
 
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2125,7 +2077,7 @@ module.exports = {
 
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2346,7 +2298,7 @@ module.exports = function(options) {
 
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2363,7 +2315,8 @@ module.exports = function(options) {
     options             = options || {};
     var reporter        = options.reporter;
     var batchProcessor  = options.batchProcessor;
-    var getState        = options.stateHandler.getState;
+    var getState = options.stateHandler.getState;
+    var cleanState = options.stateHandler.cleanState;
     var hasState        = options.stateHandler.hasState;
     var idHandler       = options.idHandler;
 
@@ -2989,6 +2942,11 @@ module.exports = function(options) {
         state.onAnimationStart && removeEvent(state.container, "animationstart", state.onAnimationStart);
 
         state.container && element.removeChild(state.container);
+
+        // cleanup the rest of the state
+        state.listeners = null;
+
+        cleanState(element);
     }
 
     return {

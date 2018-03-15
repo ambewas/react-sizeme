@@ -7,7 +7,7 @@ import ReactDOM from 'react-dom'
 import invariant from 'invariant'
 import throttle from 'lodash/throttle'
 import debounce from 'lodash/debounce'
-import resizeDetector from './resizeDetector'
+import createResizeDetector from 'element-resize-detector'
 
 const defaultConfig = {
   monitorWidth: true,
@@ -184,12 +184,9 @@ function sizeMe(config = defaultConfig) {
         position: undefined,
       }
 
-      constructor() {
-        super()
-        this.checkIfSizeChanged = refreshDelayStrategy(this.checkIfSizeChanged, refreshRate)
-      }
-
       componentDidMount() {
+        this.resizeDetector = createResizeDetector({ strategy: resizeDetectorStrategy })
+        this.delayedChange = refreshDelayStrategy(this.checkIfSizeChanged, refreshRate)
         this.determineStrategy(this.props)
         this.handleDOMNode()
       }
@@ -203,19 +200,14 @@ function sizeMe(config = defaultConfig) {
       }
 
       componentWillUnmount() {
-        this.checkIfSizeChanged.cancel()
-
-        // Change our size checker to a noop just in case we have some
-        // late running events.
-        this.hasSizeChanged = () => undefined
-        this.checkIfSizeChanged = () => undefined
-
+        this.delayedChange.cancel()
+        this.delayedChange = null
         this.element = null
 
         if (this.domEl) {
-          resizeDetector(resizeDetectorStrategy).removeAllListeners(this.domEl)
-          resizeDetector(resizeDetectorStrategy).uninstall(this.domEl)
+          this.resizeDetector.uninstall(this.domEl)
           this.domEl = null
+          this.resizeDetector = null
         }
       }
 
@@ -254,7 +246,7 @@ function sizeMe(config = defaultConfig) {
         if (!found) {
           // This is for special cases where the element may be null.
           if (this.domEl) {
-            resizeDetector(resizeDetectorStrategy).removeAllListeners(
+            this.resizeDetector.removeAllListeners(
               this.domEl,
             )
             this.domEl = null
@@ -263,13 +255,13 @@ function sizeMe(config = defaultConfig) {
         }
 
         if (this.domEl) {
-          resizeDetector(resizeDetectorStrategy).removeAllListeners(this.domEl)
+          this.resizeDetector.removeAllListeners(this.domEl)
         }
 
         this.domEl = found
-        resizeDetector(resizeDetectorStrategy).listenTo(
+        this.resizeDetector.listenTo(
           this.domEl,
-          this.checkIfSizeChanged,
+          this.delayedChange,
         )
       }
 
