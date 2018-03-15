@@ -31,7 +31,7 @@
     "test:coverage:deploy": "npm run test:coverage && codecov"
   },
   "dependencies": {
-    "element-resize-detector": "git+https://github.com/ambewas/element-resize-detector.git",
+    "element-resize-detector": "git+https://github.com/GlennGeenen/element-resize-detector.git",
     "invariant": "^2.2.2",
     "lodash": "^4.17.4"
   },
