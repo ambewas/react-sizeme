@@ -648,8 +648,6 @@ function sizeMe() {
 
   var refreshDelayStrategy = refreshMode === 'throttle' ? _throttle2.default : _debounce2.default;
 
-  var resizeDetector = (0, _elementResizeDetector2.default)({ strategy: resizeDetectorStrategy });
-
   return function WrapComponent(WrappedComponent) {
     var SizeMeRenderWrapper = renderWrapper(WrappedComponent);
 
@@ -722,6 +720,7 @@ function sizeMe() {
       _createClass(SizeAwareComponent, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
+          this.resizeDetector = (0, _elementResizeDetector2.default)({ strategy: resizeDetectorStrategy });
           this.delayedChange = refreshDelayStrategy(this.checkIfSizeChanged, refreshRate);
           this.determineStrategy(this.props);
           this.handleDOMNode();
@@ -744,9 +743,9 @@ function sizeMe() {
           this.element = null;
 
           if (this.domEl) {
-            resizeDetector.removeAllListeners(this.domEl);
-            resizeDetector.uninstall(this.domEl);
+            this.resizeDetector.uninstall(this.domEl);
             this.domEl = null;
+            this.resizeDetector = null;
           }
         }
       }, {
@@ -760,18 +759,18 @@ function sizeMe() {
           if (!found) {
             // This is for special cases where the element may be null.
             if (this.domEl) {
-              resizeDetector.removeAllListeners(this.domEl);
+              this.resizeDetector.removeAllListeners(this.domEl);
               this.domEl = null;
             }
             return;
           }
 
           if (this.domEl) {
-            resizeDetector.removeAllListeners(this.domEl);
+            this.resizeDetector.removeAllListeners(this.domEl);
           }
 
           this.domEl = found;
-          resizeDetector.listenTo(this.domEl, this.delayedChange);
+          this.resizeDetector.listenTo(this.domEl, this.delayedChange);
         }
       }, {
         key: 'render',
